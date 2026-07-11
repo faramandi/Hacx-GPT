@@ -3,6 +3,9 @@
 # HacxGPT Installer for Linux and Termux
 # https://github.com/BlackTechX011/Hacx-GPT
 
+set -Eeuo pipefail
+trap 'echo "[!] Installation failed at line $LINENO." >&2' ERR
+
 echo "======================================"
 echo "    HacxGPT Installer Script"
 echo "======================================"
