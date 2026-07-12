@@ -82,13 +82,15 @@ def test_configure_key_empty_returns_false(hacx, app, monkeypatch):
     assert app._configure_key() is False
 
 
-def test_configure_key_saves_and_exits(hacx, app, monkeypatch):
-    monkeypatch.setattr(hacx, "pwinput", lambda **_: "sk-or-new")
-    saved = {}
-    monkeypatch.setattr(hacx, "set_key", lambda f, k, v: saved.update({"f": f, "k": k, "v": v}))
-    with pytest.raises(SystemExit):
+def test_configure_key_saves_and_exits(hacx, app, monkeypatch, tmp_path):
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(hacx, "pwinput", lambda **_: "sk-test-value123")
+    with pytest.raises(SystemExit) as exit_info:
         app._configure_key()
-    assert saved == {"f": hacx.Config.ENV_FILE, "k": hacx.Config.API_KEY_NAME, "v": "sk-or-new"}
+    env_file = tmp_path / hacx.Config.ENV_FILE
+    assert exit_info.value.code == 0
+    assert env_file.read_text() == "HacxGPT-API=sk-test-value123\n"
+    assert env_file.stat().st_mode & 0o777 == 0o600
 
 
 def test_start_chat_requires_client(app):

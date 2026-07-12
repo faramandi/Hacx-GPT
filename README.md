@@ -123,9 +123,11 @@ We provide simple, one-command installation scripts for your convenience.
 
 #### **Linux / Termux**
 1. Open your terminal.
-2. Run the following command. It will download the installer, make it executable, and run it for you.
+2. Clone the repository and install its reviewed, pinned dependencies:
    ```bash
-   bash <(curl -s https://raw.githubusercontent.com/BlackTechX011/Hacx-GPT/main/install.sh)
+   git clone https://github.com/BlackTechX011/Hacx-GPT.git
+   cd Hacx-GPT
+   python3 -m pip install -r requirements.txt
    ```
 
 <details>
@@ -175,7 +177,7 @@ Once installation and configuration are complete, run the application with this 
 python3 HacxGPT.py
 ```
 
-The first time you run it, you will be prompted to enter your API key. It will be saved locally for future sessions.
+The first time you run it, you will be prompted to enter your API key. It will be saved locally in `.hacx` with owner-only permissions and is excluded from Git.
 
 ---
 

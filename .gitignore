@@ -1,8 +1,10 @@
-__pycache__/
-*.py[cod]
+.hacx
+.env
+.env.*
 .venv/
 venv/
+__pycache__/
+*.py[cod]
 .pytest_cache/
 .coverage
 htmlcov/
-.hacx

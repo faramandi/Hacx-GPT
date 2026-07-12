@@ -2,20 +2,11 @@
 from unittest.mock import MagicMock
 
 
-def test_clear_screen_posix(hacx, monkeypatch):
-    calls = []
-    monkeypatch.setattr(hacx.os, "name", "posix")
-    monkeypatch.setattr(hacx.os, "system", lambda cmd: calls.append(cmd))
-    hacx.UI().clear_screen()
-    assert calls == ["clear"]
-
-
-def test_clear_screen_windows(hacx, monkeypatch):
-    calls = []
-    monkeypatch.setattr(hacx.os, "name", "nt")
-    monkeypatch.setattr(hacx.os, "system", lambda cmd: calls.append(cmd))
-    hacx.UI().clear_screen()
-    assert calls == ["cls"]
+def test_clear_screen_delegates_to_console(hacx):
+    ui = hacx.UI()
+    ui.console = MagicMock()
+    ui.clear_screen()
+    ui.console.clear.assert_called_once()
 
 
 def test_get_input_delegates_to_console(hacx):
@@ -38,9 +29,8 @@ def test_display_message_renders_title_and_body(hacx, string_console):
     assert "hello world" in output
 
 
-def test_display_banner_outputs_info_line(hacx, string_console, monkeypatch):
+def test_display_banner_outputs_info_line(hacx, string_console):
     console, buffer = string_console
-    monkeypatch.setattr(hacx.os, "system", lambda cmd: None)
     ui = hacx.UI()
     ui.console = console
     ui.display_banner()
@@ -74,3 +64,21 @@ def test_display_markdown_message_empty_stream_shows_fallback(hacx, string_conso
     ui.console = console
     ui.display_markdown_message("HacxGPT", iter([]))
     assert "No response received" in buffer.getvalue()
+
+
+def test_display_markdown_message_error_stream_shows_one_error(hacx, string_console):
+    console, _ = string_console
+    ui = hacx.UI()
+    ui.console = console
+    ui.display_message = MagicMock()
+
+    def failed_stream():
+        raise hacx.LLMResponseError("The API request failed. Please try again.")
+        yield
+
+    ui.display_markdown_message("HacxGPT", failed_stream())
+    ui.display_message.assert_called_once_with(
+        "HacxGPT",
+        "The API request failed. Please try again.",
+        "red",
+    )

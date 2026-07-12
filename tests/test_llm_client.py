@@ -77,15 +77,15 @@ def test_get_streamed_response_auth_error_pops_user(hacx, client):
     err = hacx.openai.AuthenticationError.__new__(hacx.openai.AuthenticationError)
     Exception.__init__(err, "invalid key")
     client._fake_client.chat.completions.create.side_effect = err
-    out = list(client.get_streamed_response("prompt text"))
-    assert out == []
+    with pytest.raises(hacx.LLMResponseError, match="Authentication failed"):
+        list(client.get_streamed_response("prompt text"))
     assert all(m["role"] != "user" for m in client.history)
-    assert client._ui.display_message.call_count == 1
+    assert client._ui.display_message.call_count == 0
 
 
-def test_get_streamed_response_generic_error_pops_user(client):
+def test_get_streamed_response_generic_error_pops_user(hacx, client):
     client._fake_client.chat.completions.create.side_effect = RuntimeError("boom")
-    out = list(client.get_streamed_response("prompt text"))
-    assert out == []
+    with pytest.raises(hacx.LLMResponseError, match="unexpected local error"):
+        list(client.get_streamed_response("prompt text"))
     assert all(m["role"] != "user" for m in client.history)
-    assert client._ui.display_message.call_count == 1
+    assert client._ui.display_message.call_count == 0
