@@ -1,4 +1,5 @@
 @echo off
+setlocal
 title HacxGPT Installer
 
 echo ======================================
@@ -8,22 +9,22 @@ echo ======================================
 :: Check for Git
 echo [~] Checking for Git...
 git --version >nul 2>nul
-if %errorlevel% neq 0 (
+if errorlevel 1 (
     echo [!] Git is not installed or not in PATH.
     echo [!] Please install Git from https://git-scm.com/download/win and try again.
     pause
-    exit /b
+    exit /b 1
 )
 echo [+] Git found.
 
 :: Check for Python
 echo [~] Checking for Python...
 python --version >nul 2>nul
-if %errorlevel% neq 0 (
+if errorlevel 1 (
     echo [!] Python is not installed or not in PATH.
     echo [!] Please install Python from https://www.python.org/downloads/ and make sure to check "Add Python to PATH".
     pause
-    exit /b
+    exit /b 1
 )
 echo [+] Python found.
 
@@ -33,13 +34,25 @@ if exist "Hacx-GPT" (
 ) else (
     echo [+] Cloning Hacx-GPT repository...
     git clone https://github.com/BlackTechX011/Hacx-GPT.git
+    if errorlevel 1 (
+        echo [!] Failed to clone the repository.
+        exit /b 1
+    )
 )
 
-cd Hacx-GPT
+cd /d Hacx-GPT
+if errorlevel 1 (
+    echo [!] Failed to enter the Hacx-GPT directory.
+    exit /b 1
+)
 
 :: Install Python requirements
 echo [+] Installing required python packages...
 python -m pip install -r requirements.txt
+if errorlevel 1 (
+    echo [!] Failed to install Python requirements.
+    exit /b 1
+)
 
 echo.
 echo ======================================
@@ -52,3 +65,4 @@ echo.
 echo Don't forget to get your API key from OpenRouter or DeepSeek!
 echo ======================================
 pause
+exit /b 0
